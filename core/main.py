@@ -1,21 +1,11 @@
 from fastapi import FastAPI, status, HTTPException, Query
-from pydantic import BaseModel
 from typing import Annotated
-
+from schemas import ExpenseIn, ExpenseOut
 
 app = FastAPI()
 
 
 expenses_fake_db = []
-
-
-class ExpenseIn(BaseModel):
-    description: str
-    amount: float
-
-
-class ExpenseOut(ExpenseIn):
-    item_id: int
 
 
 def unique_id_generator():
