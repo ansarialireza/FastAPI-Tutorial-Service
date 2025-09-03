@@ -1,6 +1,6 @@
 from fastapi import FastAPI, status, HTTPException, Query
 from typing import Annotated
-from schemas import ExpenseIn, ExpenseOut
+from schemas import ExpenseCreate, ExpenseResponse
 
 app = FastAPI()
 
@@ -18,7 +18,7 @@ def unique_id_generator():
 
 @app.get(
     "/expenses/",
-    response_model=list[ExpenseOut],
+    response_model=list[ExpenseResponse],
     status_code=status.HTTP_200_OK,
 )
 async def get_expenses():
@@ -27,7 +27,7 @@ async def get_expenses():
 
 @app.get(
     "/expenses/{expense_id}",
-    response_model=ExpenseOut,
+    response_model=ExpenseResponse,
     status_code=status.HTTP_200_OK,
 )
 async def get_expense(expense_id: int):
@@ -49,10 +49,10 @@ async def get_expense(expense_id: int):
 
 @app.post(
     "/expenses/",
-    response_model=ExpenseOut,
+    response_model=ExpenseResponse,
     status_code=status.HTTP_201_CREATED,
 )
-async def create_expense(item: Annotated[ExpenseIn, Query()]):
+async def create_expense(item: Annotated[ExpenseCreate, Query()]):
     item_id = unique_id_generator()
     expenses_fake_db.append(
         {
@@ -71,10 +71,10 @@ async def create_expense(item: Annotated[ExpenseIn, Query()]):
 
 @app.put(
     "/expenses/{expense_id}",
-    response_model=ExpenseOut,
+    response_model=ExpenseResponse,
     status_code=status.HTTP_200_OK,
 )
-async def update_expense(expense_id: int, item: ExpenseIn):
+async def update_expense(expense_id: int, item: ExpenseCreate):
     expense = next(
         (
             expense
