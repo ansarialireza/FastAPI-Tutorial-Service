@@ -1,40 +1,53 @@
 from pydantic import BaseModel, Field
-from datetime import datetime, date
 from typing import Optional
+from datetime import datetime
 
 
-class UserBase(BaseModel):
-    username: str
-    email: str
+# -------------------------
+# Category Schemas
+# -------------------------
+class CategoryBase(BaseModel):
+    name: str = Field(..., min_length=1, max_length=50)
+    description: Optional[str] = Field(None, max_length=200)
 
 
-class UserCreate(UserBase):
-    password: str
-
-
-class UserResponse(UserBase):
-    id: int
-    created_at: datetime
-
-    class Config:
-        orm_mode = True
-
-
-class ExpenseBase(BaseModel):
-    amount: float
-    created_at: Optional[date] = date.today()
-    description: Optional[str] = None
-    category_id: Optional[int] = None
-    peyment_method_id: Optional[int] = None
-
-
-class ExpenseCreate(ExpenseBase):
+class CategoryCreate(CategoryBase):
     pass
 
 
-class ExpenseResponse(ExpenseBase):
+class CategoryUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=50)
+    description: Optional[str] = Field(None, max_length=200)
+
+
+class CategoryOut(CategoryBase):
+    id: int
+
+    model_config = {"from_attributes": True}
+
+
+# -------------------------
+# Expense Schemas
+# -------------------------
+class ExpenseBase(BaseModel):
+    amount: float = Field(..., gt=0)
+    description: Optional[str] = Field(None, max_length=200)
+
+
+class ExpenseCreate(ExpenseBase):
+    category_id: int
+
+
+class ExpenseUpdate(ExpenseBase):
+    amount: Optional[float] = Field(None, gt=0)
+    description: Optional[str] = Field(None, max_length=200)
+    category_id: Optional[int] = None
+
+
+class ExpenseOut(ExpenseBase):
     id: int
     created_at: datetime
+    updated_at: Optional[datetime] = None
+    category_id: int
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
