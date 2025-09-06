@@ -1,4 +1,12 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Float,
+    DateTime,
+    ForeignKey,
+    func,
+)
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 from core.database import Base
@@ -20,5 +28,5 @@ class Expense(Base):
     amount = Column(Float, nullable=False)
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=False)
     created_at = Column(DateTime, default=datetime.now(timezone.utc))
-    updated_at = Column(DateTime, nullable=True)
+    updated_at = Column(DateTime, onupdate=func.now())
     category = relationship("Category", back_populates="expenses")
