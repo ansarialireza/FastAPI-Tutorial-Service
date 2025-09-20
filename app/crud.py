@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from core import models, schemas
+from app import models, schemas
 
 
 class ExpenseCRUD:

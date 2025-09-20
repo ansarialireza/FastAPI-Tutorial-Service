@@ -9,7 +9,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
-from core.database import Base
+from app.database import Base
 
 
 class Category(Base):
