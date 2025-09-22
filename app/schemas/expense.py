@@ -3,32 +3,6 @@ from typing import Optional
 from datetime import datetime
 
 
-# -------------------------
-# Category Schemas
-# -------------------------
-class CategoryBase(BaseModel):
-    name: str = Field(..., min_length=1, max_length=50)
-    description: Optional[str] = Field(None, max_length=200)
-
-
-class CategoryCreate(CategoryBase):
-    pass
-
-
-class CategoryUpdate(BaseModel):
-    name: Optional[str] = Field(None, min_length=1, max_length=50)
-    description: Optional[str] = Field(None, max_length=200)
-
-
-class CategoryOut(CategoryBase):
-    id: int
-
-    model_config = {"from_attributes": True}
-
-
-# -------------------------
-# Expense Schemas
-# -------------------------
 class ExpenseBase(BaseModel):
     amount: float = Field(..., gt=0)
     description: Optional[str] = Field(None, max_length=200)

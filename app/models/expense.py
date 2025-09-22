@@ -9,16 +9,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
-from app.database import Base
-
-
-class Category(Base):
-    __tablename__ = "categories"
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(50), nullable=False)
-    description = Column(String(200), nullable=True)
-    expenses = relationship("Expense", back_populates="category")
+from .base import Base
 
 
 class Expense(Base):
@@ -29,4 +20,9 @@ class Expense(Base):
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=False)
     created_at = Column(DateTime, default=datetime.now(timezone.utc))
     updated_at = Column(DateTime, onupdate=func.now())
+
+    user = relationship("User", back_populates="expenses")
     category = relationship("Category", back_populates="expenses")
+
+    def __repr__(self):
+        return f"<Expense(id={self.id}, amount={self.amount}, date={self.created_at})>"
