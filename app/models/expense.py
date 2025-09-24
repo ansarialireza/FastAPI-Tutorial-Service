@@ -21,8 +21,11 @@ class Expense(Base):
     created_at = Column(DateTime, default=datetime.now(timezone.utc))
     updated_at = Column(DateTime, onupdate=func.now())
 
-    user = relationship("User", back_populates="expenses")
+    # user = relationship("User", back_populates="expenses")
     category = relationship("Category", back_populates="expenses")
 
     def __repr__(self):
-        return f"<Expense(id={self.id}, amount={self.amount}, date={self.created_at})>"
+        return (
+            f"<Expense(id={self.id}, amount={self.amount}, "
+            f"date={self.created_at})>"
+        )
