@@ -24,7 +24,7 @@ class ExpenseCRUD:
 
     def update(self, id: int, expense: ExpenseUpdate):
         db_expense = self.get_by_id(id)
-        if not db_expense:
+        if db_expense is None:
             return None
         for key, value in expense.model_dump(exclude_unset=True).items():
             setattr(db_expense, key, value)

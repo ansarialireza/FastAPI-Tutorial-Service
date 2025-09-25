@@ -1,37 +1,38 @@
 from fastapi import Depends, APIRouter, status, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-from app import schemas
-from app.database import get_db
-from app.crud import ExpenseCRUD
-
+from app.db.init_db import get_db
+from app.crud.expense import ExpenseCRUD
+from app.schemas.expense import ExpenseCreate, ExpenseUpdate, ExpenseOut
 
 router = APIRouter()
 
 
 @router.post(
     "/expenses",
-    response_model=schemas.ExpenseOut,
+    response_model=ExpenseOut,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_expense(
-    expense: schemas.ExpenseCreate, db: Session = Depends(get_db)
+    expense: ExpenseCreate, db: Session = Depends(get_db)
 ):
     return ExpenseCRUD(db).create(expense)
 
 
 @router.get(
     "/expenses",
-    response_model=List[schemas.ExpenseOut],
+    response_model=List[ExpenseOut],
     status_code=status.HTTP_200_OK,
 )
-def get_expenses(db: Session = Depends(get_db)):
-    return ExpenseCRUD(db).get_all()
+def get_expenses(
+    skip: int = 0, limit: int = 10, db: Session = Depends(get_db)
+):
+    return ExpenseCRUD(db).get_all(skip, limit)
 
 
 @router.get(
     "/expenses/{expense_id}",
-    response_model=schemas.ExpenseOut,
+    response_model=ExpenseOut,
     status_code=status.HTTP_200_OK,
 )
 async def get_expense(expense_id: int, db: Session = Depends(get_db)):
@@ -47,12 +48,12 @@ async def get_expense(expense_id: int, db: Session = Depends(get_db)):
 
 @router.put(
     "/expenses/{expense_id}",
-    response_model=schemas.ExpenseOut,
+    response_model=ExpenseOut,
     status_code=status.HTTP_200_OK,
 )
 async def update_expense(
     expense_id: int,
-    expense: schemas.ExpenseUpdate,
+    expense: ExpenseUpdate,
     db: Session = Depends(get_db),
 ):
     db_expense = ExpenseCRUD(db).update(expense_id, expense)
