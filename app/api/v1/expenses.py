@@ -1,7 +1,7 @@
 from fastapi import Depends, APIRouter, status, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-from app.db.init_db import get_db
+from app.db.session import get_db
 from app.crud.expense import ExpenseCRUD
 from app.schemas.expense import ExpenseCreate, ExpenseUpdate, ExpenseOut
 
@@ -9,7 +9,7 @@ router = APIRouter()
 
 
 @router.post(
-    "/expenses",
+    "/",
     response_model=ExpenseOut,
     status_code=status.HTTP_201_CREATED,
 )
@@ -20,18 +20,16 @@ async def create_expense(
 
 
 @router.get(
-    "/expenses",
+    "/",
     response_model=List[ExpenseOut],
     status_code=status.HTTP_200_OK,
 )
-def get_expenses(
-    skip: int = 0, limit: int = 10, db: Session = Depends(get_db)
-):
+def get_(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     return ExpenseCRUD(db).get_all(skip, limit)
 
 
 @router.get(
-    "/expenses/{expense_id}",
+    "/{expense_id}",
     response_model=ExpenseOut,
     status_code=status.HTTP_200_OK,
 )
@@ -47,7 +45,7 @@ async def get_expense(expense_id: int, db: Session = Depends(get_db)):
 
 
 @router.put(
-    "/expenses/{expense_id}",
+    "/{expense_id}",
     response_model=ExpenseOut,
     status_code=status.HTTP_200_OK,
 )
@@ -65,9 +63,7 @@ async def update_expense(
     return db_expense
 
 
-@router.delete(
-    "/expenses/{expense_id}", status_code=status.HTTP_204_NO_CONTENT
-)
+@router.delete("/{expense_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_expense(expense_id: int, db: Session = Depends(get_db)):
     db_expense = ExpenseCRUD(db).delete(expense_id)
     if not db_expense:

@@ -1,12 +1,21 @@
 from fastapi import FastAPI
-from app import models
-from app.database import engine
-from app.api.v1.auth import router as auth_router
-from app.api.v1.expenses import router as expenses_router
-from app.api.v1.categories import router as auth_router
+from app.api.v1 import auth, categories, expenses
+from app.core.config import settings
+from app.db.session import engine
+from app.db import base
 
-models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+def create_application() -> FastAPI:
+    app = FastAPI(title=settings.PROJECT_NAME)
 
-app.include_router(router)
+    app.include_router(
+        expenses.router, prefix="/api/v1/expenses", tags=["expense"]
+    )
+    app.include_router(
+        categories.router, prefix="/api/v1/categories", tags=["categories"]
+    )
+
+    return app
+
+
+app = create_application()
