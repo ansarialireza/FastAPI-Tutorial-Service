@@ -20,7 +20,7 @@ class Expense(Base):
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=False)
     created_at = Column(DateTime, default=datetime.now(timezone.utc))
     updated_at = Column(DateTime, onupdate=func.now())
-
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     user = relationship("User", back_populates="expenses")
     category = relationship("Category", back_populates="expenses")
 

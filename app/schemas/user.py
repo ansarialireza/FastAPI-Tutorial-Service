@@ -8,13 +8,13 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    password: str
+    hashed_password: str
 
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None
     email: Optional[EmailStr] = None
-    password: Optional[str] = None
+    hashed_password: Optional[str] = None
 
 
 class UserOut(UserBase):

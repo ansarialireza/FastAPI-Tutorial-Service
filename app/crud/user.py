@@ -5,7 +5,7 @@ from typing import List
 
 
 class UserCRUD:
-    def __ini__(self, db: Session):
+    def __init__(self, db: Session):
         self.db = db
 
     def create(self, user: UserCreate) -> UserModel:
@@ -43,5 +43,6 @@ class UserCRUD:
         db_user = self.get(id)
         if db_user is None:
             return None
+        self.db.delete(db_user)
         self.db.commit()
         return db_user

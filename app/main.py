@@ -8,6 +8,7 @@ from app.db import base
 def create_application() -> FastAPI:
     app = FastAPI(title=settings.PROJECT_NAME)
 
+    app.include_router(auth.router, prefix="/api/v1/users", tags=["users"])
     app.include_router(
         expenses.router, prefix="/api/v1/expenses", tags=["expense"]
     )
