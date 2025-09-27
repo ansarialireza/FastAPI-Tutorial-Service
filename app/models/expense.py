@@ -21,7 +21,7 @@ class Expense(Base):
     created_at = Column(DateTime, default=datetime.now(timezone.utc))
     updated_at = Column(DateTime, onupdate=func.now())
 
-    # user = relationship("User", back_populates="expenses")
+    user = relationship("User", back_populates="expenses")
     category = relationship("Category", back_populates="expenses")
 
     def __repr__(self):
