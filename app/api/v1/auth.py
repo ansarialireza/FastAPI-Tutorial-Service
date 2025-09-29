@@ -9,7 +9,7 @@ router = APIRouter()
 
 
 @router.post("/", response_model=UserOut, status_code=status.HTTP_201_CREATED)
-async def create_user(user: UserCreate, db: Session = Depends(get_db)):
+async def register(user: UserCreate, db: Session = Depends(get_db)):
     db_user = UserCRUD(db).create(user)
     if db_user is None:
         raise HTTPException(
