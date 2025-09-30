@@ -14,7 +14,7 @@ class UserCreate(UserBase):
 class UserUpdate(BaseModel):
     username: Optional[str] = None
     email: Optional[EmailStr] = None
-    hashed_password: Optional[str] = None
+    is_active: Optional[bool] = None
 
 
 class UserOut(UserBase):
