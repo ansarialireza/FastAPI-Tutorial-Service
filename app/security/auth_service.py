@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 from .password import PasswordManager
 from .jwt import TokenManager
 from app.crud.user import UserCRUD
-from app.core.config import settings
 
 
 class AuthService:
@@ -12,9 +11,10 @@ class AuthService:
         self.token_manager = TokenManager()
 
     def authenticate_user(
-        self, db: Session, username: str, password: str, user_crud: UserCRUD
+        self, db: Session, username: str, password: str
     ) -> Tuple[bool, Optional[Any]]:
-        user = user_crud.get_by_username(username)
+
+        user = UserCRUD(db).get_by_username(username)
         if user is None:
             return False, None
         if not self.password_manager.verify_password(

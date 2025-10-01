@@ -4,6 +4,8 @@ from typing import List
 from app.db.session import get_db
 from app.crud.expense import ExpenseCRUD
 from app.schemas.expense import ExpenseCreate, ExpenseUpdate, ExpenseOut
+from app.security.dependencies import get_current_active_user
+
 
 router = APIRouter()
 
