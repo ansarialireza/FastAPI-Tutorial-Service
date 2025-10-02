@@ -1,6 +1,6 @@
 from passlib.context import CryptContext
 from typing import Optional
-from core.config import settings
+from app.core.config import settings
 
 
 class PasswordManager:
@@ -23,3 +23,6 @@ class PasswordManager:
         if len(password) < 8:
             return False, "Password must be least 8 characters long"
         return True, None
+
+
+password_manager = PasswordManager()

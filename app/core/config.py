@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "AERHGAr;oihaegrAERHg;ohiargjo'ijdsafAERHkaerhioa"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
-    ALGORITHM: str = "HS256"
+    ALGORITHM: str = "SHA-256"
 
     FIRST_SUPERUSER: str = "admin@admin.com"
     FIRST_SUPERUSER_PASSWORD: str = "admin"
