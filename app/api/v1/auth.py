@@ -1,3 +1,4 @@
+from multiprocessing import context
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm, HTTPBearer
 from sqlalchemy.orm import Session
@@ -75,3 +76,100 @@ async def login(
 
     tokens = auth_service.generate_tokens(form_data.username)
     return tokens
+
+
+@router.post("/refresh", response_model=Token)
+async def refresh_token(
+    refresh_data: TokenRefresh, db: Session = Depends(get_db)
+) -> Any:
+    token_manager = auth_service.token_manager
+    payload = token_manager.verify_token(refresh_data.refresh_token)
+    if not payload or payload.get("type") != "refresh":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid refresh token",
+        )
+    username = payload.get("sub")
+    user = UserCRUD(db).get_by_username(username)
+    if not user or not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found or inactive",
+        )
+    access_token = token_manager.create_access_token(
+        data={"sub": user.username}
+    )
+    context = {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "refresh_token": refresh_data.refresh_token,
+    }
+    return context
+
+
+@router.post("/logout")
+async def logout(current_user: Any = Depends(get_current_active_user)) -> Any:
+    # Implement Logic for log out , You can delete token or add token to black list
+    context = {
+        "message": "Succsessfully loged out.",
+        "username": current_user.username,
+    }
+    return context
+
+
+@router.get("/me", response_model=UserOut, status_code=status.HTTP_200_OK)
+async def get_current_user_info(
+    current_user: Any = Depends(get_current_active_user),
+) -> Any:
+    return current_user
+
+
+@router.post("/change-password")
+async def change_password(
+    old_password: str,
+    new_password: str,
+    current_user: Any = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+) -> Any:
+
+    user_crud = UserCRUD(db)
+
+    if not auth_service.authenticate_user(
+        db, old_password, current_user.hashed_password
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="In correct old password",
+        )
+
+    is_valid, message = password_manager.validate_password_policy(new_password)
+    if not is_valid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=message
+        )
+    new_hashed_password = password_manager.get_password_hash(new_password)
+    user_crud.update_password(current_user.id, new_hashed_password)
+    return {"message": "Password changed succsessfully"}
+
+
+@router.post("/deactive")
+async def deactive_account(
+    current_user: Any = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+) -> Any:
+    user_crud = UserCRUD(db)
+    user_crud.deactivate_user(current_user.id)
+    return {"message": "Account deactivated successfully"}
+
+
+@router.get("/verify")
+async def verify_token(
+    current_user: Any = Depends(get_current_active_user),
+) -> Any:
+    # implement verify token logic
+
+    return {
+        "message": "Token is valid",
+        "user": current_user.username,
+        "is_active": current_user.is_active,
+    }

@@ -6,8 +6,8 @@ from jose import jwt, JWTError
 
 class TokenManager:
     def __init__(self):
-        self.secret_ky = settings.SECRET_KEY
-        self.algorithm = settings.ALGORITHM
+        self.secret_ky = settings.JWT_SECRET_KEY
+        self.algorithm = settings.JWT_ALGORITHM
         self.access_token_expire_minutes = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
     def create_access_token(

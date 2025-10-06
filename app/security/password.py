@@ -6,7 +6,7 @@ from app.core.config import settings
 class PasswordManager:
     def __init__(self):
         self.pwd_context = CryptContext(
-            schemes=[settings.ALGORITHM], deprecated="auto"
+            schemes=[settings.PASSWORD_HASH_SCHEME], deprecated="auto"
         )
 
     def verify_password(

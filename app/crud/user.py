@@ -78,6 +78,15 @@ class UserCRUD:
         self.db.refresh(db_user)
         return db_user
 
+    def update_password(self, id: int, new_password):
+        db_user = self.get(id)
+        if db_user is None:
+            return None
+        db_user.hashed_password = new_password
+        self.db.commit()
+        self.db.refresh(db_user)
+        return db_user
+
     def delete(self, id: int):
         db_user = self.get(id)
         if db_user is None:
