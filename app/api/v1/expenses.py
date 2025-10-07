@@ -1,6 +1,6 @@
 from fastapi import Depends, APIRouter, status, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from app.db.session import get_db
 from app.crud.expense import ExpenseCRUD
 from app.schemas.expense import ExpenseCreate, ExpenseUpdate, ExpenseOut
@@ -16,9 +16,11 @@ router = APIRouter()
     status_code=status.HTTP_201_CREATED,
 )
 async def create_expense(
-    expense: ExpenseCreate, db: Session = Depends(get_db)
+    expense: ExpenseCreate,
+    current_user=Depends(get_current_active_user),
+    db: Session = Depends(get_db),
 ):
-    return ExpenseCRUD(db).create(expense)
+    return ExpenseCRUD(db).create_expense(expense, current_user.id)
 
 
 @router.get(
@@ -26,8 +28,19 @@ async def create_expense(
     response_model=List[ExpenseOut],
     status_code=status.HTTP_200_OK,
 )
-def get_(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    return ExpenseCRUD(db).get_all(skip, limit)
+def read_expenses(
+    category: Optional[str] = None,
+    current_user=Depends(get_current_active_user),
+    skip: int = 0,
+    limit: int = 10,
+    db: Session = Depends(get_db),
+):
+    if category:
+        return ExpenseCRUD(db).get_expenses_by_category(
+            current_user.id, category, skip, limit
+        )
+    else:
+        return ExpenseCRUD(db).get_user_expenses(current_user.id, skip, limit)
 
 
 @router.get(
@@ -35,8 +48,12 @@ def get_(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     response_model=ExpenseOut,
     status_code=status.HTTP_200_OK,
 )
-async def get_expense(expense_id: int, db: Session = Depends(get_db)):
-    db_expense = ExpenseCRUD(db).get_by_id(expense_id)
+async def read_expense(
+    expense_id: int,
+    current_user=Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    db_expense = ExpenseCRUD(db).get_user_expense(expense_id, current_user.id)
     if db_expense is not None:
         return db_expense
     else:
@@ -54,9 +71,12 @@ async def get_expense(expense_id: int, db: Session = Depends(get_db)):
 async def update_expense(
     expense_id: int,
     expense: ExpenseUpdate,
+    current_user=Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
-    db_expense = ExpenseCRUD(db).update(expense_id, expense)
+    db_expense = ExpenseCRUD(db).update_expense(
+        expense_id, current_user.id, expense
+    )
     if not db_expense:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -66,8 +86,12 @@ async def update_expense(
 
 
 @router.delete("/{expense_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_expense(expense_id: int, db: Session = Depends(get_db)):
-    db_expense = ExpenseCRUD(db).delete(expense_id)
+async def delete_expense(
+    expense_id: int,
+    current_user=Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    db_expense = ExpenseCRUD(db).delete_expense(expense_id, current_user.id)
     if not db_expense:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

@@ -99,22 +99,22 @@ async def refresh_token(
     access_token = token_manager.create_access_token(
         data={"sub": user.username}
     )
-    context = {
+
+    return {
         "access_token": access_token,
         "token_type": "bearer",
         "refresh_token": refresh_data.refresh_token,
     }
-    return context
 
 
 @router.post("/logout")
 async def logout(current_user: Any = Depends(get_current_active_user)) -> Any:
     # Implement Logic for log out , You can delete token or add token to black list
-    context = {
+
+    return {
         "message": "Succsessfully loged out.",
         "username": current_user.username,
     }
-    return context
 
 
 @router.get("/me", response_model=UserOut, status_code=status.HTTP_200_OK)
