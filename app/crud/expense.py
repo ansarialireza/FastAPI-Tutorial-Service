@@ -2,7 +2,6 @@ from sqlalchemy.orm import Session
 from typing import Optional, List
 from app.schemas.expense import ExpenseCreate, ExpenseUpdate
 from app.models.expense import Expense as ExpenseModel
-from app.models.category import Category as CategoryModel
 
 
 class ExpenseCRUD:
