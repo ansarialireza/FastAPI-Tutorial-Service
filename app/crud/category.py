@@ -10,7 +10,7 @@ class CategoryCRUD:
         self.db = db
 
     def create_category(
-        self, user_id, category: CategoryCreate
+        self, category: CategoryCreate, user_id: int
     ) -> CategoryModel:
         db_category = CategoryModel(**category.model_dump(), user_id=user_id)
         self.db.add(db_category)

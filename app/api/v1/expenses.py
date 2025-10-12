@@ -92,7 +92,7 @@ async def delete_expense(
     db: Session = Depends(get_db),
 ):
     db_expense = ExpenseCRUD(db).delete_expense(expense_id, current_user.id)
-    if not db_expense:
+    if db_expense is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Item with id {expense_id} not found",

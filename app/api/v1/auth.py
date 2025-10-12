@@ -1,4 +1,3 @@
-from multiprocessing import context
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm, HTTPBearer
 from sqlalchemy.orm import Session
@@ -124,7 +123,7 @@ async def get_current_user_info(
     return current_user
 
 
-@router.post("/change-password")
+@router.post("/password")
 async def change_password(
     old_password: str,
     new_password: str,
@@ -152,14 +151,49 @@ async def change_password(
     return {"message": "Password changed succsessfully"}
 
 
-@router.post("/deactive")
+@router.post("/deactivate")
 async def deactive_account(
     current_user: Any = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ) -> Any:
-    user_crud = UserCRUD(db)
-    user_crud.deactivate_user(current_user.id)
+    db_user = UserCRUD(db)
+    if db_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not Found",
+        )
+    db_user.deactivate_user(current_user.id)
     return {"message": "Account deactivated successfully"}
+
+
+@router.patch("/activate")
+async def active_account(
+    current_user: Any = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Any:
+    db_user = UserCRUD(db)
+    if db_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not Found",
+        )
+    db_user.activate_user(current_user.id)
+    return {"message": "Account activated successfully"}
+
+
+@router.delete("/user")
+async def delete_account(
+    current_user: Any = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Any:
+    db_user = UserCRUD(db)
+    if db_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not Found",
+        )
+    db_user.delete_user(current_user.id)
+    return {"message": "Account deleted successfully"}
 
 
 @router.get("/verify")

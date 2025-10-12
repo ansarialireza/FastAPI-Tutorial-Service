@@ -56,6 +56,17 @@ class UserCRUD:
         self.db.refresh(db_user)
         return db_user
 
+    def activate_user(self, id: int) -> Optional[UserModel]:
+        db_user = self.get(id)
+        if db_user is None:
+            return None
+        if db_user.is_active == True:
+            return db_user
+        db_user.is_active = True
+        self.db.commit()
+        self.db.refresh(db_user)
+        return db_user
+
     def active_user(self, id: int) -> Optional[UserModel]:
         db_user = self.get(id)
         if db_user is None:
@@ -87,7 +98,7 @@ class UserCRUD:
         self.db.refresh(db_user)
         return db_user
 
-    def delete(self, id: int):
+    def delete_user(self, id: int):
         db_user = self.get(id)
         if db_user is None:
             return None
