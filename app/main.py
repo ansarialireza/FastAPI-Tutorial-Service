@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
+from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1 import (
     categories_router,
     expenses_router,
@@ -7,11 +9,18 @@ from app.api.v1 import (
 )
 from app.core.config import settings
 from app.db.session import engine
-from app.db import base
+from app.db.base import Base
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(bind=engine)
+    yield
+    engine.dispose()
 
 
 def create_application() -> FastAPI:
-    app = FastAPI(title=settings.PROJECT_NAME)
+    app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
 
     app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
     app.include_router(users_router, prefix="/api/v1/users", tags=["users"])
@@ -20,6 +29,13 @@ def create_application() -> FastAPI:
     )
     app.include_router(
         categories_router, prefix="/api/v1/categories", tags=["categories"]
+    )
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
 
     return app
