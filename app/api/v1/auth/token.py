@@ -18,6 +18,7 @@ async def refresh_token(
 ) -> Any:
     token_manager = auth_service.token_manager
     payload = token_manager.verify_token(refresh_data.refresh_token)
+    print(payload)
     if not payload or payload.get("type") != "refresh":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -33,10 +34,13 @@ async def refresh_token(
     access_token = token_manager.create_access_token(
         data={"sub": user.username}
     )
+    refresh_token = token_manager.create_refresh_token(
+        data={"sub": user.username}
+    )
     return {
         "access_token": access_token,
+        "refresh_token": refresh_token,
         "token_type": "bearer",
-        "refresh_token": refresh_data.refresh_token,
     }
 
 
@@ -44,7 +48,6 @@ async def refresh_token(
 async def verify_token(
     current_user: Any = Depends(get_current_active_user),
 ) -> Any:
-    # TODO: منطق verify کامل (مثل چک blacklist)
     return {
         "message": "Token is valid",
         "user": current_user.username,

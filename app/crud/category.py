@@ -11,12 +11,26 @@ class CategoryCRUD:
 
     def create_category(
         self, category: CategoryCreate, user_id: int
-    ) -> CategoryModel:
+    ) -> Optional[CategoryModel]:
+        if self.get_category_by_name(category.name, user_id):
+            return None
         db_category = CategoryModel(**category.model_dump(), user_id=user_id)
         self.db.add(db_category)
         self.db.commit()
         self.db.refresh(db_category)
         return db_category
+
+    def get_category_by_name(
+        self, category_name: str, user_id: int
+    ) -> Optional[CategoryModel]:
+        return (
+            self.db.query(CategoryModel)
+            .filter(
+                CategoryModel.name == category_name,
+                CategoryModel.user_id == user_id,
+            )
+            .one_or_none()
+        )
 
     def get_user_category(
         self, category_id: int, user_id: int

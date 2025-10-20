@@ -23,11 +23,18 @@ class TokenManager:
         to_encode.update({"exp": expire, "type": "access"})
         return jwt.encode(to_encode, self.secret_ky, algorithm=self.algorithm)
 
-    def create_refresh_token(self, data: Dict[str, Any]) -> str:
-        expires_delta = timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    def create_refresh_token(
+        self, data: Dict[str, Any], expires_delta: Optional[timedelta] = None
+    ) -> str:
         to_encode = data.copy()
-        to_encode.update({"type": "refresh"})
-        return self.create_access_token(to_encode, expires_delta)
+        if expires_delta:
+            expire = datetime.utcnow() + expires_delta
+        else:
+            expire = datetime.utcnow() + timedelta(
+                minutes=self.access_token_expire_minutes
+            )
+        to_encode.update({"exp": expire, "type": "refresh"})
+        return jwt.encode(to_encode, self.secret_ky, algorithm=self.algorithm)
 
     def verify_token(self, token: str) -> Optional[Dict[str, Any]]:
         try:

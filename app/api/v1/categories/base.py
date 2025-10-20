@@ -20,7 +20,13 @@ async def create_category(
     current_user=Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
-    return CategoryCRUD(db).create_category(category, current_user.id)
+    db_category = CategoryCRUD(db).create_category(category, current_user.id)
+    if db_category is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Category {category.name} already exists for this user",
+        )
+    return db_category
 
 
 @router.get(
